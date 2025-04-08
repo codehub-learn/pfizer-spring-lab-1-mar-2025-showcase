@@ -1,10 +1,7 @@
 package com.acme.eshop.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serial;
@@ -12,6 +9,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@ToString
 @MappedSuperclass
 public class BaseModel {
 	@Id

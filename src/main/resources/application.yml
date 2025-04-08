@@ -41,7 +41,7 @@ spring:
     #difference between hibernate.ddl-auto: this is  vendor agnostic, frameworks other than hibernate (i.e., eclipse-link) could be used
     generate-ddl: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
       naming:
         # hibernate's default naming strategy for entities
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
@@ -51,7 +51,7 @@ spring:
         format_sql: true
         #for the following two configurations: https://thorben-janssen.com/hibernate-features-with-spring-data-jpa/
         #get a general overview of the database operations executed during a Hibernate Session, very useful when logger is set to debug or something through logging.level.org.hibernate.stat=DEBUG
-        generate_statistics: true # NOT a production setting
+        generate_statistics: false # NOT a production setting
         session:
           events:
             log:

@@ -18,7 +18,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Entity
 @Table(name = "CUSTOMERS", indexes = {@Index(columnList = "email")})
-@SequenceGenerator(name = "idGenerator", sequenceName = "PRODUCTS_SEQ", initialValue = 1, allocationSize = 1)
+@SequenceGenerator(name = "idGenerator", sequenceName = "CUSTOMER_SEQ", initialValue = 1, allocationSize = 1)
 public class Customer extends BaseModel {
 
     @NotNull
