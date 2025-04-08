@@ -1,0 +1,107 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    #if exists = restrict creating databases and do not connect to database if schema does not exist,
+    #auto_server = allow multiple connections from different processes without having to start the server manually
+    url: jdbc:h2:file:~/.h2/internal/eshop;IFEXISTS=FALSE;AUTO_SERVER=TRUE;
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      username: sa
+      password: sa
+      # indicative hikari properties that are set:
+      #every update to the database is immediately made permanent. Any situation where a logical unit of work requires more than one update to the database cannot be done safely in auto-commit mode.
+      auto-commit: false
+      connection-test-query: select 1 from dual
+      connection-timeout: 10000
+      idle-timeout: 30000
+      max-lifetime: 60000
+      maximum-pool-size: 10
+      minimum-idle: 1
+      pool-name: eshopConnectionPooling
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  sql:
+    init:
+      #Mode to apply when determining if DataSource initialization should be performed using the available DDL (schema
+      #.sql) and DML (data.sql) scripts.
+      #never = do not read any scripts
+      #embedded = always initialize if an embedded database is in use (like H2)
+      mode: never
+      #if multiple vendors are used, scripts could be named like the following: data-h2.sql OR data-mysql.sql
+      platform: h2
+  jpa:
+    show-sql: false
+    #difference between hibernate.ddl-auto: this is  vendor agnostic, frameworks other than hibernate (i.e., eclipse-link) could be used
+    generate-ddl: true
+    hibernate:
+      ddl-auto: validate
+      naming:
+        # hibernate's default naming strategy for entities
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    dialect: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        format_sql: true
+        #for the following two configurations: https://thorben-janssen.com/hibernate-features-with-spring-data-jpa/
+        #get a general overview of the database operations executed during a Hibernate Session, very useful when logger is set to debug or something through logging.level.org.hibernate.stat=DEBUG
+        generate_statistics: true # NOT a production setting
+        session:
+          events:
+            log:
+              #logs executed queries after the threshold has passed
+              # performance impact of this feature is a lot lower than Hibernate’s generates statistics
+              LOG_QUERIES_SLOWER_THAN_MS: 10 # NOT a production setting
+        jdbc:
+          #Controls the maximum number of statements Hibernate will batch together before asking the driver to execute the batch. Zero or a negative number disables this feature.
+          batch_size: 100
+        #Hibernate creates a different batch for each entity type. This is because there can be only one type of entity in a single batch.
+        #Additionally, as Hibernate collects insert statements, it creates a new batch whenever it encounters an entity type different from the one in the current batch. This is the case even though there's already a batch for that entity type
+        #By setting order_inserts to true, it batches all insert statements of the same entity type no matter
+        order_inserts: true
+        # similar to the above but for updates instead of inserts, also goes along with the property batch versioned data enabled
+        order_updates: true
+        batch_versioned_data: true
+        query:
+          #https://thorben-janssen.com/parameter-padding/
+          #pads the bind parameters in the IN clause (lists) to the next power of 2 (2 elements = 2 params, 3 elements = 4 params, 4 elements = 4 params, 129 elements = 256 params
+          #This reduces the number of different statements (by caching the statements), especially if you
+          #often call the query with a huge number of elements in the IN clause.
+          in_clause_parameter_padding: true
+        connection:
+          #Source https://vladmihalcea.com/spring-transaction-connection-management
+          #handling_mode: DELAYED_ACQUISITION_AND_RELEASE_AFTER_STATEMENT
+          #forces hibernate to NOT eagerly fetch the connection
+          #fetching the database connection eagerly is to be avoided because if the service method executes a long-running processing task or calls an external web service, the connection will be held throughout all that time
+          #note that for the following to work, you need to set hikari's auto-commit to false
+          provider_disables_autocommit: true
+    #https://www.baeldung.com/spring-open-session-in-view
+    #Open Session in View (OSIV):
+    #1)Spring opens a new Hibernate Session at the beginning of the request. These Sessions are not necessarily connected to the database.
+    #2)Every time the application needs a Session, it will reuse the already existing one.
+    #3)At the end of the request, the same interceptor closes that Session.
+    # If OSIV is active:
+    #1)At the beginning of the request, the corresponding filter creates a new Session.
+    #2)When we call the findByUsername method, that Session borrows a Connection from the pool.
+    #3)The Session remains connected until the end of the request.
+    #this causes major issues especially if our findByUsername call is waiting for a third-party service to fetch  results (we may run out of database connections)
+    #for simple CRUD: OSIV can be left open
+    #for calls that also include other remote calls: OSIV should be disabled
+    open-in-view: false
+  data:
+    jpa:
+      #Spring Data scans for repositories and registers their bean definitions as singleton-scoped beans.
+      #During their initialization, repositories obtain an EntityManager immediately.
+      #Specifically, they get the JPA metamodel and validate declared queries.
+      repositories:
+        enabled: true
+        #default: will instantiate repositories eagerly. like any other Spring beans, their initialization will occur when injected.
+        #lazy: Spring registers our repository's bean definition but does not instantiate it right away. the first use triggers its initialization.
+        #deferred: repositories don't wait for the EntityManagerFactory‘s initialization and they are instantiated before application startup (in their own way)
+        bootstrap-mode: default
