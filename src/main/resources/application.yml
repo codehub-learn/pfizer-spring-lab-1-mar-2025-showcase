@@ -37,11 +37,11 @@ spring:
       #if multiple vendors are used, scripts could be named like the following: data-h2.sql OR data-mysql.sql
       platform: h2
   jpa:
-    show-sql: false
+    show-sql: true
     #difference between hibernate.ddl-auto: this is  vendor agnostic, frameworks other than hibernate (i.e., eclipse-link) could be used
     generate-ddl: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create-drop
       naming:
         # hibernate's default naming strategy for entities
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl

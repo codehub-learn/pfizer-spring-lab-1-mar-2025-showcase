@@ -1,5 +1,13 @@
 package com.acme.eshop.domain;
 
-public class Category {
+import lombok.*;
+
+@Getter
+@Setter
+@ToString(callSuper = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Category extends BaseModel {
     private String description;
 }

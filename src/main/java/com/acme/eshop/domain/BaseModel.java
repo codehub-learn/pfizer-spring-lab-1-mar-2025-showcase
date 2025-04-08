@@ -1,0 +1,21 @@
+package com.acme.eshop.domain;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
+import java.io.Serial;
+import java.io.Serializable;
+
+@Getter
+@Setter
+@MappedSuperclass
+public class BaseModel {
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "idGenerator")
+	@Column(updatable = false)
+	private Long id;
+}
