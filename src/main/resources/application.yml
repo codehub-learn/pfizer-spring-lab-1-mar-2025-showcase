@@ -1,6 +1,4 @@
 spring:
-  profiles:
-    active: h2
   datasource:
     driver-class-name: org.h2.Driver
     #if exists = restrict creating databases and do not connect to database if schema does not exist,
@@ -53,7 +51,7 @@ spring:
         format_sql: true
         #for the following two configurations: https://thorben-janssen.com/hibernate-features-with-spring-data-jpa/
         #get a general overview of the database operations executed during a Hibernate Session, very useful when logger is set to debug or something through logging.level.org.hibernate.stat=DEBUG
-        generate_statistics: true # NOT a production setting
+        generate_statistics: false # NOT a production setting
         session:
           events:
             log:
